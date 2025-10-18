@@ -27,10 +27,10 @@ def get_data():
     start = end - dt.timedelta(days=30)  # últimos 30 dias
 
     candles = client.get_candles(
-    product_id=PAIR,
+    PAIR,
+    granularity="6h",  # valores válidos: 1m, 5m, 15m, 1h, 6h, 1d
     start=start.isoformat(),
-    end=end.isoformat(),
-    resolution="6h"  # valores válidos: "1m", "5m", "15m", "1h", "6h", "1d"
+    end=end.isoformat()
 )
 
     df = pd.DataFrame(candles, columns=["time","low","high","open","close","volume"])
