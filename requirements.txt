@@ -1,0 +1,6 @@
+coinbase-advanced-py
+pandas
+numpy
+ta
+python-telegram-bot==21.6
+python-dotenv
