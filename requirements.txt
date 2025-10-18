@@ -1,7 +1,4 @@
 requests
 pandas
 flask
-python-telegram-bot==20.3
-coinbase
 python-dotenv
-python-telegram-bot
