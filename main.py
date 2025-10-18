@@ -28,9 +28,9 @@ def get_data():
 
     candles = client.get_candles(
     product_id=PAIR,
-    granularity="6hour",
     start=start.isoformat(),
-    end=end.isoformat()
+    end=end.isoformat(),
+    resolution="6h"  # valores válidos: "1m", "5m", "15m", "1h", "6h", "1d"
 )
 
     df = pd.DataFrame(candles, columns=["time","low","high","open","close","volume"])
