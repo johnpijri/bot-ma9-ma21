@@ -26,11 +26,17 @@ def get_data():
     end = dt.datetime.utcnow()
     start = end - dt.timedelta(days=30)  # últimos 30 dias
 
-    candles = client.get_candles(
-    PAIR,
-    granularity="FOUR_HOUR",
-    start=start.isoformat(),
-    end=end.isoformat()
+    import time
+import datetime as dt
+
+end = dt.datetime.utcnow()
+start = end - dt.timedelta(days=30)
+
+candles = client.get_candles(
+    product_id=PAIR,
+    granularity="FOUR_HOUR",  # opções: ONE_MINUTE, FIVE_MINUTE, FIFTEEN_MINUTE, THIRTY_MINUTE, ONE_HOUR, TWO_HOUR, FOUR_HOUR, SIX_HOUR, ONE_DAY
+    start=int(start.timestamp()),
+    end=int(end.timestamp())
 )
 
     df = pd.DataFrame(candles, columns=["time","low","high","open","close","volume"])
