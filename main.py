@@ -27,36 +27,50 @@ def get_data():
     end = dt.datetime.utcnow()
     start = end - dt.timedelta(days=30)
 
-    # Buscar candles
-    resp = client.get_candles(
+    # Obter dados de candles da Coinbase
+    response = client.get_candles(
         product_id=PAIR,
-        granularity="FOUR_HOUR",  # opções válidas: ONE_MINUTE, FIVE_MINUTE, FIFTEEN_MINUTE, ONE_HOUR, FOUR_HOUR, ONE_DAY
+        granularity="FOUR_HOUR",
         start=int(start.timestamp()),
         end=int(end.timestamp())
     )
 
-    # Garantir que a resposta contém dados
-    candles = resp.candles if hasattr(resp, "candles") else resp.get("candles", [])
+    # Extrair candles de forma segura
+    if hasattr(response, "candles"):
+        candles = response.candles
+    elif isinstance(response, dict) and "candles" in response:
+        candles = response["candles"]
+    else:
+        raise ValueError(f"Formato inesperado na resposta da API: {type(response)}")
 
     if not candles:
-        raise ValueError("Sem dados de candles recebidos da API Coinbase.")
+        raise ValueError("A API não devolveu dados de candles (lista vazia).")
 
-    # Converter para DataFrame
-    df = pd.DataFrame(candles, columns=["start", "low", "high", "open", "close", "volume"])
-    df = df.sort_values("start")
-    df.rename(columns={"start": "time"}, inplace=True)
+    # Cada candle vem como dicionário — converter corretamente
+    df = pd.DataFrame([
+        {
+            "time": c.get("start"),
+            "low": c.get("low"),
+            "high": c.get("high"),
+            "open": c.get("open"),
+            "close": c.get("close"),
+            "volume": c.get("volume")
+        }
+        for c in candles
+    ])
 
-    # Garantir tipos numéricos
+    # Ordenar e preparar
+    df = df.sort_values("time")
     df[["open", "high", "low", "close", "volume"]] = df[["open", "high", "low", "close", "volume"]].astype(float)
 
-    # Cálculo de indicadores
+    # Indicadores técnicos
     df["MA9"] = df["close"].rolling(9).mean()
     df["MA21"] = df["close"].rolling(21).mean()
     df["MA200"] = df["close"].rolling(200).mean()
     df["RSI"] = ta.momentum.RSIIndicator(df["close"], 14).rsi()
     df["VOL_MA20"] = df["volume"].rolling(20).mean()
 
-    # Sinais
+    # Sinais de compra/venda
     df["cross_up"] = (df["MA9"].shift(1) <= df["MA21"].shift(1)) & (df["MA9"] > df["MA21"])
     df["cross_dn"] = (df["MA9"].shift(1) >= df["MA21"].shift(1)) & (df["MA9"] < df["MA21"])
     df["BUY_SIGNAL"] = df["cross_up"] & (df["close"] > df["MA200"]) & (df["RSI"] > 55) & (df["volume"] > df["VOL_MA20"])
