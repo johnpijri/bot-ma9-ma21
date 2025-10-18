@@ -28,7 +28,7 @@ def get_data():
 
     candles = client.get_candles(
     PAIR,
-    granularity="6h",  # valores válidos: 1m, 5m, 15m, 1h, 6h, 1d
+    granularity="FOUR_HOUR",
     start=start.isoformat(),
     end=end.isoformat()
 )
