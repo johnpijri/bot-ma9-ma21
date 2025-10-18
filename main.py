@@ -27,8 +27,8 @@ def get_data():
     start = end - dt.timedelta(days=30)  # últimos 30 dias
 
     candles = client.get_candles(
-    PAIR,
-    granularity=21600,  # 6h (valor válido para Coinbase)
+    product_id=PAIR,
+    granularity="6hour",
     start=start.isoformat(),
     end=end.isoformat()
 )
