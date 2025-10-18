@@ -21,7 +21,18 @@ def notify(msg):
         print("Erro Telegram:", e)
 
 def get_data():
-    candles = client.get_candles(PAIR, granularity="4h")
+    import datetime as dt
+
+    end = dt.datetime.utcnow()
+    start = end - dt.timedelta(days=30)  # últimos 30 dias
+
+    candles = client.get_candles(
+        PAIR,
+        granularity="4h",
+        start=start.isoformat(),
+        end=end.isoformat()
+    )
+
     df = pd.DataFrame(candles, columns=["time","low","high","open","close","volume"])
     df = df.sort_values("time")
     df[["open","high","low","close","volume"]] = df[["open","high","low","close","volume"]].astype(float)
