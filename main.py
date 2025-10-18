@@ -180,3 +180,18 @@ if __name__ == "__main__":
     # Chama o teu loop principal do bot aqui
     # Exemplo:
     # bot.polling()
+    
+from flask import Flask
+import threading
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot ativo no Render!"
+
+def run_flask():
+    app.run(host="0.0.0.0", port=10000)
+
+# Executa o servidor Flask em paralelo
+threading.Thread(target=run_flask).start()
