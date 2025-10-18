@@ -22,22 +22,31 @@ def notify(msg):
 
 def get_data():
     import datetime as dt
+    import time
 
     end = dt.datetime.utcnow()
-    start = end - dt.timedelta(days=30)  # últimos 30 dias
+    start = end - dt.timedelta(days=30)
 
-    import time
-import datetime as dt
+    candles = client.get_candles(
+        product_id=PAIR,
+        granularity="FOUR_HOUR",  # valores possíveis: ONE_MINUTE, FIVE_MINUTE, FIFTEEN_MINUTE, ONE_HOUR, FOUR_HOUR, ONE_DAY
+        start=int(start.timestamp()),
+        end=int(end.timestamp())
+    )
 
-end = dt.datetime.utcnow()
-start = end - dt.timedelta(days=30)
-
-candles = client.get_candles(
-    product_id=PAIR,
-    granularity="FOUR_HOUR",  # opções: ONE_MINUTE, FIVE_MINUTE, FIFTEEN_MINUTE, THIRTY_MINUTE, ONE_HOUR, TWO_HOUR, FOUR_HOUR, SIX_HOUR, ONE_DAY
-    start=int(start.timestamp()),
-    end=int(end.timestamp())
-)
+    df = pd.DataFrame(candles, columns=["time", "low", "high", "open", "close", "volume"])
+    df = df.sort_values("time")
+    df[["open","high","low","close","volume"]] = df[["open","high","low","close","volume"]].astype(float)
+    df["MA9"] = df["close"].rolling(9).mean()
+    df["MA21"] = df["close"].rolling(21).mean()
+    df["MA200"] = df["close"].rolling(200).mean()
+    df["RSI"] = ta.momentum.RSIIndicator(df["close"], 14).rsi()
+    df["VOL_MA20"] = df["volume"].rolling(20).mean()
+    df["cross_up"] = (df["MA9"].shift(1) <= df["MA21"].shift(1)) & (df["MA9"] > df["MA21"])
+    df["cross_dn"] = (df["MA9"].shift(1) >= df["MA21"].shift(1)) & (df["MA9"] < df["MA21"])
+    df["BUY_SIGNAL"] = df["cross_up"] & (df["close"] > df["MA200"]) & (df["RSI"] > 55) & (df["volume"] > df["VOL_MA20"])
+    df["SELL_SIGNAL"] = df["cross_dn"] & (df["close"] < df["MA200"]) & (df["RSI"] < 45) & (df["volume"] > df["VOL_MA20"])
+    return df
 
     df = pd.DataFrame(candles, columns=["time","low","high","open","close","volume"])
     df = df.sort_values("time")
