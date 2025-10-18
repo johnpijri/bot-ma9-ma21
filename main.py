@@ -32,7 +32,6 @@ def get_data():
     start=start.isoformat(),
     end=end.isoformat()
 )
-    )
 
     df = pd.DataFrame(candles, columns=["time","low","high","open","close","volume"])
     df = df.sort_values("time")
