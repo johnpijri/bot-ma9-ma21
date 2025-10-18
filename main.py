@@ -27,10 +27,11 @@ def get_data():
     start = end - dt.timedelta(days=30)  # últimos 30 dias
 
     candles = client.get_candles(
-        PAIR,
-        granularity="4h",
-        start=start.isoformat(),
-        end=end.isoformat()
+    PAIR,
+    granularity=21600,  # 6h (valor válido para Coinbase)
+    start=start.isoformat(),
+    end=end.isoformat()
+)
     )
 
     df = pd.DataFrame(candles, columns=["time","low","high","open","close","volume"])
