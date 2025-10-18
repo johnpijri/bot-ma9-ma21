@@ -20,7 +20,7 @@ def notify(msg):
     except Exception as e:
         print("Erro Telegram:", e)
 
-def get_data():
+def def get_data():
     import datetime as dt
     import time
 
@@ -35,20 +35,29 @@ def get_data():
         end=int(end.timestamp())
     )
 
+    # Filtrar candles válidos (evita erro 'NoneType')
+    valid_candles = [c for c in candles if c is not None]
+
+    if not valid_candles:
+        raise ValueError("Nenhum candle válido retornado pela API.")
+
     # Converter objetos Candle em dicionários
     data = []
-    for c in candles:
-        data.append({
-            "time": c.start,
-            "low": float(c.low),
-            "high": float(c.high),
-            "open": float(c.open),
-            "close": float(c.close),
-            "volume": float(c.volume)
-        })
+    for c in valid_candles:
+        try:
+            data.append({
+                "time": c.start,
+                "low": float(c.low),
+                "high": float(c.high),
+                "open": float(c.open),
+                "close": float(c.close),
+                "volume": float(c.volume)
+            })
+        except Exception as e:
+            print("Erro ao converter candle:", e)
 
     if not data:
-        raise ValueError("Sem candles devolvidos pela API.")
+        raise ValueError("Erro ao processar candles. Nenhum dado convertido.")
 
     # Criar DataFrame
     df = pd.DataFrame(data)
