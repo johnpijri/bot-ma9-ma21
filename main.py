@@ -20,7 +20,7 @@ def notify(msg):
     except Exception as e:
         print("Erro Telegram:", e)
 
-def def get_data():
+def get_data():
     import datetime as dt
     import time
 
