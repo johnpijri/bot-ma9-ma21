@@ -142,3 +142,21 @@ if __name__ == "__main__":
     import threading
     threading.Thread(target=loop).start()
     app.run(host="0.0.0.0", port=10000)
+    
+from flask import Flask
+import threading
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot ativo e a funcionar no Render!"
+
+def run_flask():
+    app.run(host="0.0.0.0", port=10000)
+
+# Inicializar o Flask em paralelo com o bot
+if __name__ == "__main__":
+    threading.Thread(target=run_flask).start()
+    # aqui colocas o loop principal do teu bot:
+    # ex: bot.polling() ou bot.run_polling()
